@@ -1,0 +1,6 @@
+github.com/Raqbit/mc-pinger v0.2.2 h1:fZS58Z5R34MDMRQq5XR7UjoNFy4qk11zQ+RuJqb+3mQ=
+github.com/Raqbit/mc-pinger v0.2.2/go.mod h1:3BtpUQAShwS0ClpL0Mfs8Lr4W42tOOCbtMtw9mw3Kng=
+github.com/pires/go-proxyproto v0.6.0 h1:cLJUPnuQdiNf7P/wbeOKmM1khVdaMgTFDLj8h9ZrVYk=
+github.com/pires/go-proxyproto v0.6.0/go.mod h1:Odh9VFOZJCf9G8cLW5o435Xf1J95Jw9Gw5rnCjcwzAY=
+github.com/pires/go-proxyproto v0.6.2 h1:KAZ7UteSOt6urjme6ZldyFm4wDe/z0ZUP0Yv0Dos0d8=
+github.com/pires/go-proxyproto v0.6.2/go.mod h1:Odh9VFOZJCf9G8cLW5o435Xf1J95Jw9Gw5rnCjcwzAY=
