@@ -21,8 +21,8 @@ MinecraftServerChecker.exe -f=ip.txt -tn=3000
 =================================================
 IP: 0.0.0.0
 VERSION: 1.19
-PLAYERS: 1/20
-ONLINE PLAYERS: [Player]
+ONLINE: 1/20
+PLAYERS: [Player]
 MOTD: A Minecraft Server
 =================================================
 ```
