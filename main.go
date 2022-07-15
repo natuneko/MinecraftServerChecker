@@ -64,20 +64,20 @@ func main() {
 				format1 := fmt.Sprintf("=================================================\nip: %s\nVERSION: %s\nONLINE: %d/%d\nPLAYERS: %s\nMOTD: %s", ip, info.Version.Name, info.Players.Online, info.Players.Max, players, info.Description.Text)
 				format2 := fmt.Sprintf("%s | %s | %s | %d/%d | %s", ip, strings.ReplaceAll(info.Description.Text, "\n", " "), info.Version.Name, info.Players.Online, info.Players.Max, players)
 
-				all, err := os.OpenFile("all.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC, 0664)
+				all, err := os.OpenFile("all.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 				defer all.Close()
 				if err != nil {
 					fmt.Println(err)
 				}
 
-				version, err := os.OpenFile("version/"+info.Version.Name+".txt", os.O_APPEND|os.O_CREATE|os.O_SYNC, 0664)
+				version, err := os.OpenFile("version/"+info.Version.Name+".txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 				defer version.Close()
 				if err != nil {
 					fmt.Println(err)
 				}
 
 				if info.Players.Online > 0 {
-					player, err := os.OpenFile("player.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC, 0664)
+					player, err := os.OpenFile("player.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 					defer player.Close()
 					if err != nil {
 						fmt.Println(err)
