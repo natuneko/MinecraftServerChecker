@@ -15,7 +15,7 @@ MinecraftServerChecker.exe -f=ip.txt -tn=3000
 | wfm | write format mode | 2 |
 | p | check port number | 25565 |
 | ms | masscan mode | false |
-| msf | Name of masscan file to load | false |
+| msf | Name of masscan file to load | masscan.txt |
 
 ## Format mode example
 1
