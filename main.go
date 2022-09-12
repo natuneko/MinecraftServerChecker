@@ -77,7 +77,7 @@ func main() {
 					players = append(players, player.Name)
 				}
 				format1 := fmt.Sprintf("=================================================\nip: %s\nVERSION: %s\nONLINE: %d/%d\nPLAYERS: %s\nMOTD: %s", ip, info.Version.Name, info.Players.Online, info.Players.Max, players, info.Description.Text)
-				format2 := fmt.Sprintf("%s | %s | %s | %d/%d | %s", ip, strings.ReplaceAll(info.Description.Text, "\n", " "), info.Version.Name, info.Players.Online, info.Players.Max, players)
+				format2 := fmt.Sprintf("%s:%d | %s | %s | %d/%d | %s", ip, port, strings.ReplaceAll(info.Description.Text, "\n", " "), info.Version.Name, info.Players.Online, info.Players.Max, players)
 
 				all, err := os.OpenFile("all.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 				defer all.Close()
