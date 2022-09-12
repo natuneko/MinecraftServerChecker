@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +19,8 @@ var (
 	formatMode  int
 	wformatMode int
 	port        int
+	ms          bool
+	msfile      string
 )
 
 func init() {
@@ -26,6 +29,8 @@ func init() {
 	flag.IntVar(&formatMode, "fm", 2, "format mode")
 	flag.IntVar(&wformatMode, "wfm", 2, "write format mode")
 	flag.IntVar(&port, "p", 25565, "check port")
+	flag.BoolVar(&ms, "ms", false, "masscan")
+	flag.StringVar(&msfile, "msf", "masscan.txt", "masscan file")
 	flag.Parse()
 
 	versionfile, _ := os.Stat("version")
@@ -39,18 +44,28 @@ func init() {
 }
 
 func main() {
-	ip, err := ioutil.ReadFile(file)
+	if ms {
+		file = msfile
+	}
+	ipfile, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("%s is none.", file))
 		return
 	}
-	iplist := strings.Split(string(ip), "\n")
+
+	iplist := strings.Split(string(ipfile), "\n")
 
 	wg := &sync.WaitGroup{}
 	ch := make(chan struct{}, threadnum)
 	done := 0
-	for _, ip := range iplist {
-		ip := strings.ReplaceAll(ip, "\r", "")
+	for _, ipp := range iplist {
+		var ip string
+		if ms {
+			ip = strings.Split(ipp, " ")[3]
+			port, _ = strconv.Atoi(strings.Split(ipp, " ")[2])
+		} else {
+			ip = strings.ReplaceAll(ipp, "\r", "")
+		}
 		ch <- struct{}{}
 		wg.Add(1)
 		go func(ip string) {
