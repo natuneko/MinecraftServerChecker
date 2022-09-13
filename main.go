@@ -33,9 +33,18 @@ func init() {
 	flag.StringVar(&msfile, "msf", "masscan.txt", "masscan file")
 	flag.Parse()
 
-	versionfile, _ := os.Stat("version")
+	checkedfile, _ := os.Stat("checked")
+	if checkedfile == nil {
+		err := os.Mkdir("checked", 0777)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
+	versionfile, _ := os.Stat("checked/version")
 	if versionfile == nil {
-		err := os.Mkdir("version", 0777)
+		err := os.Mkdir("checked/version", 0777)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -62,14 +71,17 @@ func main() {
 		var ip string
 		if ms {
 			ip = strings.Split(ipp, " ")[3]
-			port, _ = strconv.Atoi(strings.Split(ipp, " ")[2])
+			port, err = strconv.Atoi(strings.Split(ipp, " ")[2])
+			if err != nil {
+				panic(err)
+			}
 		} else {
 			ip = strings.ReplaceAll(ipp, "\r", "")
 		}
 		ch <- struct{}{}
 		wg.Add(1)
-		go func(ip string) {
-			pinger := mcpinger.New(ip, uint16(port), mcpinger.McPingerOption(mcpinger.WithTimeout(3*time.Second)))
+		go func(ip string, port uint16) {
+			pinger := mcpinger.New(ip, port, mcpinger.McPingerOption(mcpinger.WithTimeout(3*time.Second)))
 			info, err := pinger.Ping()
 			if err == nil {
 				var players []string
@@ -79,20 +91,20 @@ func main() {
 				format1 := fmt.Sprintf("=================================================\nip: %s:%d\nVERSION: %s\nONLINE: %d/%d\nPLAYERS: %s\nMOTD: %s", ip, port, info.Version.Name, info.Players.Online, info.Players.Max, players, info.Description.Text)
 				format2 := fmt.Sprintf("%s:%d | %s | %s | %d/%d | %s", ip, port, strings.ReplaceAll(info.Description.Text, "\n", " "), info.Version.Name, info.Players.Online, info.Players.Max, players)
 
-				all, err := os.OpenFile("all.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
+				all, err := os.OpenFile("checked/all.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 				defer all.Close()
 				if err != nil {
 					fmt.Println(err)
 				}
 
-				version, err := os.OpenFile("version/"+info.Version.Name+".txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
+				version, err := os.OpenFile("checked/version/"+info.Version.Name+".txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 				defer version.Close()
 				if err != nil {
 					fmt.Println(err)
 				}
 
 				if info.Players.Online > 0 {
-					player, err := os.OpenFile("player.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
+					player, err := os.OpenFile("checked/player.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 					defer player.Close()
 					if err != nil {
 						fmt.Println(err)
@@ -127,7 +139,7 @@ func main() {
 			done++
 			fmt.Print(fmt.Sprintf("%d/%d \r", done, len(iplist)))
 			wg.Done()
-		}(ip)
+		}(ip, uint16(port))
 	}
 	wg.Wait()
 }
