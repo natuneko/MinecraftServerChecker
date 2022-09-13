@@ -61,14 +61,18 @@ func main() {
 	for _, ipp := range iplist {
 		var ip string
 		if ms {
-			ip = strings.Split(ipp, " ")[3]
-			port, _ = strconv.Atoi(strings.Split(ipp, " ")[2])
+			if strings.HasPrefix(ipp, "#") {
+				fmt.Println("ignored: " + ipp)
+			} else {
+				ip = strings.Split(ipp, " ")[3]
+				port, _ = strconv.Atoi(strings.Split(ipp, " ")[2])
+			}
 		} else {
 			ip = strings.ReplaceAll(ipp, "\r", "")
 		}
 		ch <- struct{}{}
 		wg.Add(1)
-		go func(ip string) {
+		go func(ip string, port int) {
 			pinger := mcpinger.New(ip, uint16(port), mcpinger.McPingerOption(mcpinger.WithTimeout(3*time.Second)))
 			info, err := pinger.Ping()
 			if err == nil {
@@ -127,7 +131,7 @@ func main() {
 			done++
 			fmt.Print(fmt.Sprintf("%d/%d \r", done, len(iplist)))
 			wg.Done()
-		}(ip)
+		}(ip, port)
 	}
 	wg.Wait()
 }
