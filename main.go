@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +19,8 @@ var (
 	formatMode  int
 	wformatMode int
 	port        int
+	ms          bool
+	msfile      string
 )
 
 func init() {
@@ -26,6 +29,8 @@ func init() {
 	flag.IntVar(&formatMode, "fm", 2, "format mode")
 	flag.IntVar(&wformatMode, "wfm", 2, "write format mode")
 	flag.IntVar(&port, "p", 25565, "check port")
+	flag.BoolVar(&ms, "ms", false, "masscan")
+	flag.StringVar(&msfile, "msf", "masscan.txt", "masscan file")
 	flag.Parse()
 
 	versionfile, _ := os.Stat("checked")
@@ -39,18 +44,28 @@ func init() {
 }
 
 func main() {
-	ip, err := ioutil.ReadFile(file)
+	if ms {
+		file = msfile
+	}
+	ipfile, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("%s is none.", file))
 		return
 	}
-	iplist := strings.Split(string(ip), "\n")
+
+	iplist := strings.Split(string(ipfile), "\n")
 
 	wg := &sync.WaitGroup{}
 	ch := make(chan struct{}, threadnum)
 	done := 0
-	for _, ip := range iplist {
-		ip := strings.ReplaceAll(ip, "\r", "")
+	for _, ipp := range iplist {
+		var ip string
+		if ms {
+			ip = strings.Split(ipp, " ")[3]
+			port, _ = strconv.Atoi(strings.Split(ipp, " ")[2])
+		} else {
+			ip = strings.ReplaceAll(ipp, "\r", "")
+		}
 		ch <- struct{}{}
 		wg.Add(1)
 		go func(ip string) {
@@ -61,8 +76,8 @@ func main() {
 				for _, player := range info.Players.Sample {
 					players = append(players, player.Name)
 				}
-				format1 := fmt.Sprintf("=================================================\nip: %s\nVERSION: %s\nONLINE: %d/%d\nPLAYERS: %s\nMOTD: %s", ip, info.Version.Name, info.Players.Online, info.Players.Max, players, info.Description.Text)
-				format2 := fmt.Sprintf("%s | %s | %s | %d/%d | %s", ip, strings.ReplaceAll(info.Description.Text, "\n", " "), info.Version.Name, info.Players.Online, info.Players.Max, players)
+				format1 := fmt.Sprintf("=================================================\nip: %s:%d\nVERSION: %s\nONLINE: %d/%d\nPLAYERS: %s\nMOTD: %s", ip, port, info.Version.Name, info.Players.Online, info.Players.Max, players, info.Description.Text)
+				format2 := fmt.Sprintf("%s:%d | %s | %s | %d/%d | %s", ip, port, strings.ReplaceAll(info.Description.Text, "\n", " "), info.Version.Name, info.Players.Online, info.Players.Max, players)
 
 				all, err := os.OpenFile("checked/all.txt", os.O_APPEND|os.O_CREATE|os.O_SYNC|os.O_WRONLY, 0664)
 				defer all.Close()
